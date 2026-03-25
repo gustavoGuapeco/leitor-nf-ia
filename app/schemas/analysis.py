@@ -4,6 +4,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.config.ai_constants import ANALYSIS_DEBUG_TRUNCATE_MAX_LEN
+
 
 class ProcedimentoLinha(BaseModel):
     descricao: str
@@ -38,7 +40,7 @@ class AnalysisDebugPayload(BaseModel):
     """Campos opcionais de debug (sem dados sensíveis completos)."""
 
     modelo: str | None = None
-    provedor: str = "openai"
+    provedor: str
     provider_latency_ms: float | None = None
     resposta_modelo_truncada: str | None = Field(
         default=None,
@@ -53,7 +55,7 @@ class AnalysisDebugPayload(BaseModel):
     def truncate_raw(cls, v: Any) -> Any:
         if v is None or not isinstance(v, str):
             return v
-        max_len = 2000
+        max_len = ANALYSIS_DEBUG_TRUNCATE_MAX_LEN
         if len(v) <= max_len:
             return v
         return v[:max_len] + "… [truncado]"

@@ -1,0 +1,7 @@
+# Opcional: segredos puxados da AWS com scripts/fetch-secrets.ps1 (ou .sh) → .env.secrets.local
+# Se o ficheiro não existir, o Compose ignora (Docker Compose 2.24+).
+services:
+  api:
+    env_file:
+      - path: .env.secrets.local
+        required: false

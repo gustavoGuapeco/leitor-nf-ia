@@ -7,6 +7,10 @@ from pathlib import Path
 import httpx
 from openai import OpenAI, RateLimitError
 
+from app.config.ai_constants import (
+    OPENAI_CLIENT_MAX_RETRIES,
+    OPENAI_DEFAULT_TEMPERATURE,
+)
 from app.config.settings import Settings
 from app.exceptions import AIProviderError, AIRateLimitError, AITimeoutError
 from app.schemas.analysis import ModelAnalysisOutput
@@ -31,9 +35,9 @@ class OpenAIMultimodalAnalyzer:
         self._settings = settings
         self._system_prompt = _load_system_prompt()
         self._client = OpenAI(
-            api_key=settings.openai_api_key,
-            timeout=settings.openai_timeout_seconds,
-            max_retries=0,
+            api_key=settings.ai_api_key,
+            timeout=settings.ai_timeout_seconds,
+            max_retries=OPENAI_CLIENT_MAX_RETRIES,
         )
 
     def analyze(
@@ -44,7 +48,7 @@ class OpenAIMultimodalAnalyzer:
         procedimento_solicitado: str,
     ) -> ModelAnalysisOutput:
         if mime_type == "application/octet-stream":
-            msg = "MIME type não suportado ou indeterminado para o OpenAI."
+            msg = "MIME type não suportado ou indeterminado para este provedor de IA."
             raise ValueError(msg)
 
         user_text = (
@@ -57,8 +61,8 @@ class OpenAIMultimodalAnalyzer:
 
         try:
             response = self._client.responses.create(
-                model=self._settings.openai_model,
-                temperature=0.2,
+                model=self._settings.ai_model,
+                temperature=OPENAI_DEFAULT_TEMPERATURE,
                 text={"format": {"type": "json_object"}},
                 input=[
                     {

@@ -5,6 +5,9 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    # OPENAI_API_KEY e outros segredos vêm só de env_file (.env / .env.secrets.local via override).
+    # Não usar environment: OPENAI_API_KEY aqui — sobrescreve env_file e quebra fetch-secrets → .env.secrets.local
     environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      AI_PROVIDER: ${AI_PROVIDER:-openai}
+      AI_MODEL: ${AI_MODEL:-gpt-4.1-mini}
+      AI_TIMEOUT_SECONDS: ${AI_TIMEOUT_SECONDS:-120}

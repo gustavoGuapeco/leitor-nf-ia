@@ -36,8 +36,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="API Análise NF Veterinária",
     description=(
-        "Analisa notas fiscais (PDF/imagem) com OpenAI e verifica se o "
-        "procedimento solicitado consta na nota."
+        "Analisa notas fiscais (PDF/imagem) com o provedor de IA configurado "
+        "e verifica se o procedimento solicitado consta na nota."
     ),
     version="0.1.0",
     lifespan=lifespan,

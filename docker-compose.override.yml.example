@@ -1,0 +1,14 @@
+# Cópia de referência — o repositório já inclui docker-compose.override.yml com o mesmo conteúdo.
+# Se personalizar, pode renomear este ficheiro ou ajustar o override local.
+#
+# Carrega .env.secrets.local (opcional) gerado por:
+#   .\scripts\fetch-secrets.ps1 -SecretId "nome-do-segredo"
+#   ./scripts/fetch-secrets.sh nome-do-segredo sa-east-1
+#
+# Ordem de precedência: variáveis em .env.secrets.local sobrepõem .env (ficheiro listado por último).
+
+services:
+  api:
+    env_file:
+      - path: .env.secrets.local
+        required: false

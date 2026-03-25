@@ -5,6 +5,10 @@ import time
 import uuid
 from typing import Any
 
+from app.config.ai_constants import (
+    ANALYSIS_CONFIDENCE_CAP_WHEN_UNCERTAIN,
+    ANALYSIS_CONFIDENCE_FLOOR_WHEN_APPROVED,
+)
 from app.config.settings import Settings
 from app.exceptions import AnalysisValidationError
 from app.schemas.analysis import AnalysisDebugPayload, AnalysisResponse, ModelAnalysisOutput
@@ -21,7 +25,7 @@ def _harmonize_public_output(model_out: ModelAnalysisOutput) -> AnalysisResponse
     aprovado = bool(model_out.aprovado) and len(items) > 0
     confidence = float(model_out.confidence)
     if model_out.aprovado and not items:
-        confidence = min(confidence, 0.35)
+        confidence = min(confidence, ANALYSIS_CONFIDENCE_CAP_WHEN_UNCERTAIN)
     return AnalysisResponse(
         aprovado=aprovado,
         confidence=confidence,
@@ -74,7 +78,10 @@ class AnalysisService:
         procedimentos_nota = payload.get("procedimentos_nota", [])
         if category is None:
             payload["aprovado"] = False
-            payload["confidence"] = min(float(payload.get("confidence", 0.0)), 0.35)
+            payload["confidence"] = min(
+                float(payload.get("confidence", 0.0)),
+                ANALYSIS_CONFIDENCE_CAP_WHEN_UNCERTAIN,
+            )
             payload["procedimentos_encontrados"] = []
         else:
             matched_lines: list[dict[str, Any]] = []
@@ -85,14 +92,20 @@ class AnalysisService:
             payload["procedimentos_encontrados"] = matched_lines
             payload["aprovado"] = len(matched_lines) > 0
             if payload["aprovado"]:
-                payload["confidence"] = max(float(payload.get("confidence", 0.0)), 0.75)
+                payload["confidence"] = max(
+                    float(payload.get("confidence", 0.0)),
+                    ANALYSIS_CONFIDENCE_FLOOR_WHEN_APPROVED,
+                )
             else:
-                payload["confidence"] = min(float(payload.get("confidence", 0.0)), 0.35)
+                payload["confidence"] = min(
+                    float(payload.get("confidence", 0.0)),
+                    ANALYSIS_CONFIDENCE_CAP_WHEN_UNCERTAIN,
+                )
 
         if include_debug:
             payload["debug"] = AnalysisDebugPayload(
-                modelo=self._settings.openai_model,
-                provedor="openai",
+                modelo=self._settings.ai_model,
+                provedor=self._settings.ai_provider,
                 provider_latency_ms=round(elapsed_ms, 2),
                 resposta_modelo_truncada=None,
                 request_id=rid,
