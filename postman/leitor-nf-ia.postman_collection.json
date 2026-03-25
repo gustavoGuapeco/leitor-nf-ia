@@ -1,0 +1,107 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-leitor-nf-ia",
+    "name": "leitor-nf-ia",
+    "description": "API de análise de NF veterinária (OpenAI). Requer OPENAI_API_KEY no servidor. Ajuste base_url e, no POST /analisar, selecione o ficheiro em Body > form-data.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/health",
+        "description": "Status da API e se OPENAI_API_KEY está definida."
+      }
+    },
+    {
+      "name": "Ready",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/ready",
+        "description": "Indica se /analisar pode rodar (OPENAI_API_KEY presente)."
+      }
+    },
+    {
+      "name": "Analisar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Request-ID",
+            "value": "{{$guid}}",
+            "type": "text",
+            "description": "Opcional; Postman preenche com um GUID."
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "procedimento",
+              "value": "Vacina antirrábica",
+              "type": "text",
+              "description": "Procedimento a verificar na nota"
+            },
+            {
+              "key": "arquivo",
+              "type": "file",
+              "src": [],
+              "description": "Selecione PDF ou imagem (jpg, png, webp, bmp)"
+            }
+          ]
+        },
+        "url": "{{base_url}}/analisar",
+        "description": "multipart: procedimento + arquivo. Escolha o ficheiro no campo arquivo."
+      }
+    },
+    {
+      "name": "Analisar (debug)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Request-ID",
+            "value": "{{$guid}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "procedimento",
+              "value": "Consulta clínica",
+              "type": "text"
+            },
+            {
+              "key": "arquivo",
+              "type": "file",
+              "src": []
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/analisar?debug=true",
+          "host": ["{{base_url}}"],
+          "path": ["analisar"],
+          "query": [
+            {
+              "key": "debug",
+              "value": "true"
+            }
+          ]
+        },
+        "description": "Igual a Analisar, com query debug=true na resposta."
+      }
+    }
+  ]
+}
