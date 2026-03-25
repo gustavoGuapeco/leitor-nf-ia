@@ -22,7 +22,7 @@ Antes de decidir, execute mentalmente estes passos:
    - ignorar pontuação e pequenas variações de escrita.
 2. Considere equivalência por:
    - sinônimos e variações comuns (ex.: "consulta clínica" ~ "consulta veterinária");
-   - gênero/número/plural;
+   - gênero/número/plural (ex.: **"Consultas"** no pedido ~ **"Consulta veterinária"** na nota — mesmo procedimento);
    - abreviações usuais ("antirrabica" ~ "anti-rábica", "vac." ~ "vacina");
    - pequenas diferenças de ordem de palavras.
 3. Se a linha da nota indicar claramente o mesmo ato/procedimento, marque como correspondência.

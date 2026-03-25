@@ -16,17 +16,64 @@ def _normalize_text(text: str) -> str:
     return text
 
 
+def _token_matches_keyword(token: str, keyword_norm: str) -> bool:
+    """
+    Compara token (da nota ou do pedido) com uma keyword, sem igualdade literal rígida.
+
+    Cobre singular/plural simples em PT (ex.: consulta/consultas, exame/exames) e
+    pequenas diferenças de sufixo, desde que o radical compartilhado tenha tamanho mínimo
+    (evita falso positivo em palavras muito curtas).
+    """
+    if not token or not keyword_norm:
+        return False
+    if token == keyword_norm:
+        return True
+
+    min_root = 4
+    a, b = token, keyword_norm
+    if len(a) > len(b):
+        a, b = b, a
+    # a é o mais curto
+    if len(a) < min_root:
+        return False
+    if b.startswith(a) and len(b) - len(a) <= 2:
+        return True
+    return False
+
+
+def _multi_keyword_parts_match(parts: list[str], tokens: list[str]) -> bool:
+    """Todas as partes da frase-chave aparecem nesta ordem, cada uma com match flexível a um token."""
+    if not parts:
+        return True
+    first, rest = parts[0], parts[1:]
+    for i, tok in enumerate(tokens):
+        if _token_matches_keyword(tok, first) and _multi_keyword_parts_match(rest, tokens[i + 1 :]):
+            return True
+    return False
+
+
 def _keyword_in_text(*, keyword: str, text_norm: str, keyword_norm: str) -> bool:
     if not keyword_norm:
         return False
 
-    # Quando a keyword tiver espaços, fazemos match por substring.
-    if " " in keyword_norm:
-        return keyword_norm in text_norm
+    tokens = text_norm.split()
 
-    # Caso contrário, usamos boundary pra reduzir falsos positivos.
-    pattern = r"\b" + re.escape(keyword_norm) + r"\b"
-    return re.search(pattern, text_norm) is not None
+    if " " in keyword_norm:
+        if keyword_norm in text_norm:
+            return True
+        parts = [p for p in keyword_norm.split() if p]
+        return _multi_keyword_parts_match(parts, tokens)
+
+    for tok in tokens:
+        if _token_matches_keyword(tok, keyword_norm):
+            return True
+
+    # Códigos curtos (ex.: v8, 24h): boundary exato sobre o texto inteiro.
+    if len(keyword_norm) < 4:
+        pattern = r"\b" + re.escape(keyword_norm) + r"\b"
+        return re.search(pattern, text_norm) is not None
+
+    return False
 
 
 def detect_category(procedimento: str) -> str | None:
