@@ -100,7 +100,7 @@
             }
           ]
         },
-        "description": "Igual a Analisar, com query debug=true na resposta."
+        "description": "Igual a Analisar, com ?debug=true: objeto debug com latência, tokens (provedor), texto_extraido_completo (OCR/transcrição pedida ao modelo) e request_id."
       }
     }
   ]

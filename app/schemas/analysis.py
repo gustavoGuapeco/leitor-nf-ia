@@ -14,12 +14,12 @@ class ProcedimentoLinha(BaseModel):
 
 
 class AnalysisResponse(BaseModel):
-    """Contrato público da API (alinhado ao projeto legado)."""
+    """Contrato público da API."""
 
     aprovado: bool
     confidence: float = Field(ge=0.0, le=1.0)
-    procedimentos_encontrados: list[ProcedimentoLinha]
-    procedimentos_nota: list[ProcedimentoLinha]
+    procedimentos_aprovados: list[ProcedimentoLinha]
+    todos_procedimentos: list[ProcedimentoLinha]
 
     model_config = {"extra": "forbid"}
 
@@ -32,6 +32,10 @@ class ModelAnalysisOutput(BaseModel):
     procedimentos_encontrados: list[ProcedimentoLinha]
     procedimentos_nota: list[ProcedimentoLinha] = Field(default_factory=list)
     justificativa_curta: str | None = None
+    texto_extraido_completo: str | None = Field(
+        default=None,
+        description="Transcrição completa do documento (pedida só em modo debug).",
+    )
 
     model_config = {"extra": "ignore"}
 
@@ -42,6 +46,22 @@ class AnalysisDebugPayload(BaseModel):
     modelo: str | None = None
     provedor: str
     provider_latency_ms: float | None = None
+    tokens_entrada: int | None = Field(
+        default=None,
+        description="Tokens de entrada conforme retorno do provedor (ex.: API OpenAI).",
+    )
+    tokens_saida: int | None = Field(
+        default=None,
+        description="Tokens de saída conforme retorno do provedor.",
+    )
+    tokens_total: int | None = Field(
+        default=None,
+        description="Total de tokens conforme retorno do provedor.",
+    )
+    texto_extraido_completo: str | None = Field(
+        default=None,
+        description="Texto integral extraído/transcrito do documento (estilo OCR).",
+    )
     resposta_modelo_truncada: str | None = Field(
         default=None,
         description="Trecho da resposta bruta do modelo (truncado).",
@@ -59,3 +79,14 @@ class AnalysisDebugPayload(BaseModel):
         if len(v) <= max_len:
             return v
         return v[:max_len] + "… [truncado]"
+
+
+class AnalyzerRunResult(BaseModel):
+    """Resultado bruto do analisador (modelo + metadados do provedor)."""
+
+    output: ModelAnalysisOutput
+    tokens_entrada: int | None = None
+    tokens_saida: int | None = None
+    tokens_total: int | None = None
+
+    model_config = {"extra": "forbid"}

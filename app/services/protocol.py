@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from app.schemas.analysis import ModelAnalysisOutput
+from app.schemas.analysis import AnalyzerRunResult
 
 
 class MultimodalAnalyzer(Protocol):
@@ -14,4 +14,5 @@ class MultimodalAnalyzer(Protocol):
         file_content: bytes,
         mime_type: str,
         procedimento_solicitado: str,
-    ) -> ModelAnalysisOutput: ...
+        include_debug: bool = False,
+    ) -> AnalyzerRunResult: ...

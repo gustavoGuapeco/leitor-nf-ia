@@ -74,6 +74,18 @@ curl -sS -X POST "http://localhost:8000/analisar" \
 
 ### `POST /analisar` com `debug=true`
 
+Use o query parameter `debug=true` para incluir o objeto **`debug`** na resposta JSON (além dos campos normais de análise).
+
+O objeto **`debug`** pode incluir, entre outros:
+
+- **`provedor`**, **`modelo`**: identificação do provedor e do modelo configurados
+- **`provider_latency_ms`**: tempo aproximado da chamada ao provedor
+- **`request_id`**: correlaciona com o header `X-Request-ID`, se enviado
+- **`tokens_entrada`**, **`tokens_saida`**, **`tokens_total`**: uso de tokens quando a API do provedor (ex.: OpenAI) devolve `usage`
+- **`texto_extraido_completo`**: transcrição textual completa do documento pedida ao modelo em modo debug (estilo OCR); pode vir vazio se o modelo não preencher
+
+Resposta de análise (sem o prefixo `debug`): **`procedimentos_aprovados`** (itens que sustentam a aprovação após regras), **`todos_procedimentos`** (todos os procedimentos/serviços identificados na nota), **`aprovado`**, **`confidence`**.
+
 ```bash
 curl.exe -sS -X POST "http://localhost:8000/analisar?debug=true" -F "procedimento=Consulta clínica" -F "arquivo=@C:\caminho\para\nota.png;type=image/png"
 ```

@@ -13,7 +13,7 @@ from app.config.ai_constants import (
 )
 from app.config.settings import Settings
 from app.exceptions import AIProviderError, AIRateLimitError, AITimeoutError
-from app.schemas.analysis import ModelAnalysisOutput
+from app.schemas.analysis import AnalyzerRunResult, ModelAnalysisOutput
 from app.services.json_extract import extract_json_object
 
 logger = logging.getLogger(__name__)
@@ -26,6 +26,13 @@ def _load_system_prompt() -> str:
         msg = f"Arquivo de prompt não encontrado: {_PROMPT_PATH}"
         raise RuntimeError(msg)
     return _PROMPT_PATH.read_text(encoding="utf-8")
+
+
+_DEBUG_OCR_INSTRUCTION = (
+    "\n\n[Instrução adicional — depuração] Inclua no mesmo objeto JSON a chave "
+    '"texto_extraido_completo" (string) com toda a transcrição textual legível do documento, '
+    "no estilo de um OCR completo (cabeçalhos, linhas de itens, valores), na ordem de leitura."
+)
 
 
 class OpenAIMultimodalAnalyzer:
@@ -46,7 +53,8 @@ class OpenAIMultimodalAnalyzer:
         file_content: bytes,
         mime_type: str,
         procedimento_solicitado: str,
-    ) -> ModelAnalysisOutput:
+        include_debug: bool = False,
+    ) -> AnalyzerRunResult:
         if mime_type == "application/octet-stream":
             msg = "MIME type não suportado ou indeterminado para este provedor de IA."
             raise ValueError(msg)
@@ -56,6 +64,8 @@ class OpenAIMultimodalAnalyzer:
             f"{procedimento_solicitado.strip()}\n\n"
             "Analise o documento anexado e responda somente com o JSON exigido nas instruções."
         )
+        if include_debug:
+            user_text += _DEBUG_OCR_INSTRUCTION
         file_b64 = base64.b64encode(file_content).decode("ascii")
         file_data = f"data:{mime_type};base64,{file_b64}"
 
@@ -97,13 +107,25 @@ class OpenAIMultimodalAnalyzer:
             msg = "Resposta do OpenAI sem texto utilizável."
             raise AIProviderError(msg)
 
+        usage = getattr(response, "usage", None)
+        tokens_in = getattr(usage, "input_tokens", None) if usage is not None else None
+        tokens_out = getattr(usage, "output_tokens", None) if usage is not None else None
+        tokens_tot = getattr(usage, "total_tokens", None) if usage is not None else None
+
         try:
-            return ModelAnalysisOutput.model_validate_json(raw_text)
+            output = ModelAnalysisOutput.model_validate_json(raw_text)
         except Exception:
             try:
                 data = extract_json_object(raw_text)
-                return ModelAnalysisOutput.model_validate(data)
+                output = ModelAnalysisOutput.model_validate(data)
             except Exception as e2:
                 logger.warning("JSON do modelo inválido: %s", e2)
                 msg = "O modelo retornou JSON em formato inválido."
                 raise ValueError(msg) from e2
+
+        return AnalyzerRunResult(
+            output=output,
+            tokens_entrada=tokens_in,
+            tokens_saida=tokens_out,
+            tokens_total=tokens_tot,
+        )
