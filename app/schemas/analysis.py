@@ -13,6 +13,54 @@ class ProcedimentoLinha(BaseModel):
     pet: str | None = None
 
 
+class PartePrestadorNfse(BaseModel):
+    """Prestador de serviços (NFS-e): emitente / quem presta o serviço."""
+
+    razao_social: str | None = Field(
+        default=None,
+        description="Razão social ou nome conforme o documento.",
+    )
+    nome_fantasia: str | None = Field(default=None, description="Nome fantasia, se houver.")
+    cnpj_ou_cpf: str | None = Field(
+        default=None,
+        description="CNPJ ou CPF como impresso na nota (pode manter pontuação).",
+    )
+    inscricao_municipal: str | None = None
+    municipio: str | None = Field(
+        default=None,
+        description="Município/UF ou localização cadastral (ex.: SANTO ANDRÉ - SP).",
+    )
+    endereco: str | None = Field(
+        default=None,
+        description="Logradouro, número, bairro e CEP como na nota (texto único se vier assim).",
+    )
+    telefone: str | None = None
+    email: str | None = None
+
+    model_config = {"extra": "ignore"}
+
+
+class ParteTomadorNfse(BaseModel):
+    """Tomador / cliente (pessoa física ou jurídica): nome e endereço unificado (inclui cidade)."""
+
+    nome: str | None = Field(
+        default=None,
+        description="Nome da pessoa ou razão social do cliente conforme a nota.",
+    )
+    endereco: str | None = Field(
+        default=None,
+        description="Endereço completo em um texto: logradouro, bairro, CEP e cidade/UF.",
+    )
+    cnpj_ou_cpf: str | None = Field(
+        default=None,
+        description="CPF ou CNPJ como impresso na nota (pode manter pontuação).",
+    )
+    telefone: str | None = None
+    email: str | None = None
+
+    model_config = {"extra": "ignore"}
+
+
 class AnalysisResponse(BaseModel):
     """Contrato público da API."""
 
@@ -20,6 +68,14 @@ class AnalysisResponse(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     procedimentos_aprovados: list[ProcedimentoLinha]
     todos_procedimentos: list[ProcedimentoLinha]
+    prestador: PartePrestadorNfse | None = Field(
+        default=None,
+        description="Quem presta o serviço / emite a NFS-e. null se não houver bloco identificável.",
+    )
+    tomador: ParteTomadorNfse | None = Field(
+        default=None,
+        description="Cliente / tomador do serviço. null se não houver bloco identificável.",
+    )
 
     model_config = {"extra": "forbid"}
 
@@ -31,6 +87,8 @@ class ModelAnalysisOutput(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     procedimentos_encontrados: list[ProcedimentoLinha]
     procedimentos_nota: list[ProcedimentoLinha] = Field(default_factory=list)
+    prestador: PartePrestadorNfse | None = None
+    tomador: ParteTomadorNfse | None = None
     justificativa_curta: str | None = None
     texto_extraido_completo: str | None = Field(
         default=None,

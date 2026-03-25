@@ -3,6 +3,8 @@ from app.schemas.analysis import (
     AnalysisResponse,
     AnalyzerRunResult,
     ModelAnalysisOutput,
+    PartePrestadorNfse,
+    ParteTomadorNfse,
     ProcedimentoLinha,
 )
 
@@ -11,5 +13,7 @@ __all__ = [
     "AnalysisResponse",
     "AnalyzerRunResult",
     "ModelAnalysisOutput",
+    "PartePrestadorNfse",
+    "ParteTomadorNfse",
     "ProcedimentoLinha",
 ]

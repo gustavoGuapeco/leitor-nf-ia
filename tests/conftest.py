@@ -9,7 +9,12 @@ os.environ["OPENAI_API_KEY"] = "test-key-stub-only"
 import pytest
 from app.config.settings import get_settings
 from app.deps import get_analyzer
-from app.schemas.analysis import AnalyzerRunResult, ModelAnalysisOutput, ProcedimentoLinha
+from app.schemas.analysis import (
+    AnalyzerRunResult,
+    ModelAnalysisOutput,
+    PartePrestadorNfse,
+    ProcedimentoLinha,
+)
 from fastapi.testclient import TestClient
 
 
@@ -37,6 +42,12 @@ class _StubOpenAIAnalyzer:
                     ProcedimentoLinha(descricao="Consulta clínica", valor="R$ 150,00", pet="Zeus"),
                     ProcedimentoLinha(descricao="Vacina antirrábica", valor="R$ 80,00", pet="Zeus"),
                 ],
+                prestador=PartePrestadorNfse(
+                    razao_social="CLÍNICA STUB LTDA",
+                    cnpj_ou_cpf="00.000.000/0001-00",
+                    municipio="SÃO PAULO - SP",
+                ),
+                tomador=None,
                 justificativa_curta="Item de vacina (stub de teste).",
                 texto_extraido_completo="NOTA STUB\nVacina antirrábica R$ 80,00" if include_debug else None,
             )

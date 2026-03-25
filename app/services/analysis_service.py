@@ -37,6 +37,8 @@ def _harmonize_public_output(model_out: ModelAnalysisOutput) -> AnalysisResponse
         confidence=confidence,
         procedimentos_aprovados=items,
         todos_procedimentos=todos,
+        prestador=model_out.prestador,
+        tomador=model_out.tomador,
     )
 
 

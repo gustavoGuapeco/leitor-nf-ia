@@ -30,6 +30,9 @@ def test_analisar_stub_vacina(client: TestClient) -> None:
     assert len(out["procedimentos_aprovados"]) >= 1
     assert len(out["todos_procedimentos"]) >= len(out["procedimentos_aprovados"])
     assert "pet" in out["todos_procedimentos"][0]
+    assert out["prestador"] is not None
+    assert out["prestador"]["razao_social"] == "CLÍNICA STUB LTDA"
+    assert out["tomador"] is None
 
 
 def test_analisar_stub_sem_match(client: TestClient) -> None:
@@ -41,6 +44,8 @@ def test_analisar_stub_sem_match(client: TestClient) -> None:
     assert out["aprovado"] is False
     assert len(out["todos_procedimentos"]) >= 1
     assert "pet" in out["todos_procedimentos"][0]
+    assert out["prestador"] is None
+    assert out["tomador"] is None
 
 
 def test_analisar_debug_tokens_e_ocr(client: TestClient) -> None:
