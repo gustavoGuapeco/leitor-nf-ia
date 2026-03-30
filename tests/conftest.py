@@ -49,7 +49,9 @@ class _StubOpenAIAnalyzer:
                 ),
                 tomador=None,
                 justificativa_curta="Item de vacina (stub de teste).",
-                texto_extraido_completo="NOTA STUB\nVacina antirrábica R$ 80,00" if include_debug else None,
+                texto_extraido_completo=(
+                    "NOTA STUB\nVacina antirrábica R$ 80,00" if include_debug else None
+                ),
             )
             return AnalyzerRunResult(
                 output=out,

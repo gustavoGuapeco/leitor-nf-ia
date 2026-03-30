@@ -70,7 +70,10 @@ class AnalysisResponse(BaseModel):
     todos_procedimentos: list[ProcedimentoLinha]
     prestador: PartePrestadorNfse | None = Field(
         default=None,
-        description="Quem presta o serviço / emite a NFS-e. null se não houver bloco identificável.",
+        description=(
+            "Quem presta o serviço / emite a NFS-e. "
+            "null se não houver bloco identificável."
+        ),
     )
     tomador: ParteTomadorNfse | None = Field(
         default=None,

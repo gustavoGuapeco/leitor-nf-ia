@@ -36,13 +36,11 @@ def _token_matches_keyword(token: str, keyword_norm: str) -> bool:
     # a é o mais curto
     if len(a) < min_root:
         return False
-    if b.startswith(a) and len(b) - len(a) <= 2:
-        return True
-    return False
+    return bool(b.startswith(a) and len(b) - len(a) <= 2)
 
 
 def _multi_keyword_parts_match(parts: list[str], tokens: list[str]) -> bool:
-    """Todas as partes da frase-chave aparecem nesta ordem, cada uma com match flexível a um token."""
+    """Partes da frase-chave aparecem em ordem, com match flexível por token."""
     if not parts:
         return True
     first, rest = parts[0], parts[1:]

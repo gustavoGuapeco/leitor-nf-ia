@@ -14,8 +14,11 @@ def test_line_matches_consulta_veterinaria_com_pedido_consultas() -> None:
 
 
 def test_exame_exames_flexivel() -> None:
-    assert line_matches_category(descricao="Exames laboratoriais", category="EXAMES_LABORATORIAIS") is True
-    # "exames" casa antes em EXAMES_GERAIS (ordem de categorias); hemogramas ↔ hemograma cobre o flex.
+    assert (
+        line_matches_category(descricao="Exames laboratoriais", category="EXAMES_LABORATORIAIS")
+        is True
+    )
+    # "exames" casa antes em EXAMES_GERAIS; hemogramas/hemograma cobrem o match flexível.
     assert detect_category("Hemogramas de rotina") == "EXAMES_LABORATORIAIS"
     assert line_matches_category(descricao="Hemogramas", category="EXAMES_LABORATORIAIS") is True
 
