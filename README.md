@@ -9,35 +9,50 @@ Na **raiz do repositório** (mesma pasta que `pyproject.toml`), são carregados,
 Variáveis de ambiente do sistema **vazias** não sobrescrevem os ficheiros (`env_ignore_empty`).
 
 ```bash
+# Linux/macOS
+cp .env.example .env
+
+# Windows PowerShell
 copy .env.example .env
 ```
 
 Edite **`.env`**, defina **`OPENAI_API_KEY`** (obrigatório para `/analisar`) e reinicie o servidor.
 
-## Executar local
+## Execução (somente Docker)
+
+Com Docker Desktop / daemon ativo, execute na raiz do projeto:
 
 ```bash
-python -m venv .venv
-.\.venv\Scripts\pip install -e ".[dev]"
-.\.venv\Scripts\uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+docker compose up --build
 ```
 
-Documentação interativa: `http://localhost:8000/docs`.
+A API ficará disponível em `http://localhost:8000` e a documentação interativa em
+`http://localhost:8000/docs`.
+
+Para rodar em background:
+
+```bash
+docker compose up --build -d
+```
+
+Para parar e remover os containers:
+
+```bash
+docker compose down
+```
 
 ## Variáveis de ambiente
 
 Ver `.env.example`.
 
-## Docker
+## Docker (comando alternativo sem Compose)
 
-Com Docker Desktop / daemon ativo:
+Se preferir, também é possível executar sem Compose:
 
 ```bash
 docker build -t leitor-nf-ia .
-docker run --rm -p 8000:8000 -e OPENAI_API_KEY=sua_chave leitor-nf-ia
+docker run --rm -p 8000:8000 --env-file .env leitor-nf-ia
 ```
-
-Ou `docker compose up --build` (use `.env` com `OPENAI_API_KEY`).
 
 ## Testar com cURL
 
